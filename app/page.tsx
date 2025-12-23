@@ -426,7 +426,7 @@ export default function Home() {
         <footer className="mx-auto max-w-6xl px-6 pb-12 pt-4 text-sm text-slate-500">
           <div className="flex flex-col gap-3 border-t border-slate-200 pt-6 md:flex-row md:items-center md:justify-between">
             <span>Commitly. Calm planning, offline-first.</span>
-            <span>Contact: hello@comity.app</span>
+            <span>Contact: Jeremy.john.underwood007@gmail.com</span>
           </div>
         </footer>
       </div>

@@ -1,45 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useFormState } from "react-dom";
 
-type FormData = {
-  name: string;
-  email: string;
-  help: string;
-};
-
-type Submission = FormData & {
-  submittedAt: string;
-};
+import {
+  saveEarlyAccess,
+  type EarlyAccessState,
+} from "../actions/saveEarlyAccess";
 
 export default function EarlyAccessPage() {
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    help: "",
-  });
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const entry: Submission = {
-      ...formData,
-      submittedAt: new Date().toISOString(),
-    };
-
-    const existing = localStorage.getItem("comityEarlyAccess");
-    const parsed = existing ? (JSON.parse(existing) as Submission[]) : [];
-    parsed.push(entry);
-    localStorage.setItem("comityEarlyAccess", JSON.stringify(parsed));
-    setSubmitted(true);
-  };
+  const [state, formAction] = useFormState<EarlyAccessState, FormData>(
+    saveEarlyAccess,
+    { success: false }
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-100 text-slate-900">
@@ -56,20 +28,18 @@ export default function EarlyAccessPage() {
             email you your early access link.
           </p>
 
-          {submitted ? (
+          {state.success ? (
             <div className="mt-8 rounded-2xl border border-emerald-200 bg-emerald-50 px-6 py-5 text-sm text-emerald-800">
-              Thanks — we&apos;ll email you shortly.
+              Thanks — you&apos;re on the list.
             </div>
           ) : (
-            <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
+            <form className="mt-8 grid gap-5" action={formAction}>
               <label className="grid gap-2 text-sm font-medium text-slate-700">
                 Name
                 <input
                   className="rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
                   name="name"
                   placeholder="Jane Doe"
-                  value={formData.name}
-                  onChange={handleChange}
                   required
                 />
               </label>
@@ -81,8 +51,6 @@ export default function EarlyAccessPage() {
                   name="email"
                   type="email"
                   placeholder="jane@studio.com"
-                  value={formData.email}
-                  onChange={handleChange}
                   required
                 />
               </label>
@@ -93,10 +61,12 @@ export default function EarlyAccessPage() {
                   className="min-h-[120px] rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-200"
                   name="help"
                   placeholder="Tell us about your workflow or goals."
-                  value={formData.help}
-                  onChange={handleChange}
                 />
               </label>
+
+              {state.error ? (
+                <p className="text-xs text-rose-600">{state.error}</p>
+              ) : null}
 
               <button
                 type="submit"
